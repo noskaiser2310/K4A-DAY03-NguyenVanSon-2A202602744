@@ -1,6 +1,7 @@
 """
 🔌 MODEL CONTEXT PROTOCOL (MCP) SERVER MODULE
 Mô phỏng kiến trúc MCP Server (Client-Server Architecture) cung cấp công cụ chuẩn hóa.
+Hỗ trợ cả giao tiếp VinFast EV Service và chuẩn giao thức MCP JSON-RPC 2.0.
 """
 
 import json
@@ -16,9 +17,9 @@ if sys.stdout.encoding != 'utf-8':
 
 class MCPAcademicServer:
     """
-    Giả lập MCP Server tuân thủ chuẩn giao thức Model Context Protocol
+    MCP Server tuân thủ chuẩn giao thức Model Context Protocol (MCP JSON-RPC 2.0)
     """
-    def __init__(self, server_name: str = "vinuni-academic-mcp-server"):
+    def __init__(self, server_name: str = "vinfast-ev-service-mcp-server"):
         self.server_name = server_name
         self.version = "2026.1.0"
         
@@ -29,22 +30,34 @@ class MCPAcademicServer:
     def call_tool(self, tool_name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
         """
         [TASK 2.1] HỌC VIÊN HOÀN THIỆN HÀM THỰC THI TOOL TRÊN MCP SERVER
-        Thực thi request gọi Tool theo chuẩn MCP JSON-RPC
+        Thực thi request gọi Tool theo chuẩn MCP JSON-RPC 2.0
         """
-        # --------------------------------------------------------------------------
-        # TODO 2.1: HỌC VIÊN HOÀN THIỆN HÀM GỌI TOOL CHUẨN MCP JSON-RPC
-        # 🎯 YÊU CẦU THỰC THI THUẬT TOÁN:
-        # 1. Gọi hàm dispatch_tool_call(tool_name, arguments) để lấy chuỗi JSON kết quả từ Tool Router.
-        # 2. Chuyển đổi chuỗi JSON kết quả thành Python Dictionary (dùng json.loads).
-        # 3. Đóng gói phản hồi và trả về Dict theo đúng chuẩn giao thức MCP JSON-RPC 2.0:
-        #    - Các trường bắt buộc: "jsonrpc": "2.0", "server": self.server_name, "tool": tool_name, "result": content
-        # --------------------------------------------------------------------------
-        return {}
+        # 1. Gọi dispatch_tool_call để lấy chuỗi JSON từ Tool Execution Layer
+        raw_result = dispatch_tool_call(tool_name, arguments)
+        
+        # 2. Chuyển đổi kết quả chuỗi JSON thành Python Dictionary
+        try:
+            content = json.loads(raw_result)
+        except Exception:
+            content = {"status": "RAW_OUTPUT", "output": raw_result}
+            
+        # 3. Đóng gói phản hồi theo đúng chuẩn giao thức MCP JSON-RPC 2.0
+        response_payload = {
+            "jsonrpc": "2.0",
+            "server": self.server_name,
+            "tool": tool_name,
+            "result": content
+        }
+        return response_payload
+
+
+# Alias tương thích tên gọi
+MCPEvServiceServer = MCPAcademicServer
 
 
 if __name__ == "__main__":
     print("==========================================================")
-    print("🔌 KIỂM THỬ ĐỘC LẬP MCP SERVER (vinuni-academic-mcp-server)")
+    print("🔌 KIỂM THỬ ĐỘC LẬP MCP SERVER (vinfast-ev-service-mcp-server)")
     print("==========================================================")
     
     server = MCPAcademicServer()
@@ -61,8 +74,13 @@ if __name__ == "__main__":
 
     # Kiểm tra trạng thái TODO 2.1 (call_tool)
     test_result = server.call_tool("academic_query", {"student_id": "SV2026001"})
-    if not test_result:
+    if not test_result or not test_result.get("result"):
         print("⏳ [TODO 2.1]: Hàm call_tool() đang trả về rỗng. Học viên hãy hoàn thiện TODO 2.1 trong 'src/mcp_server.py'!")
     else:
         print(f"✅ [TODO 2.1]: Test dispatch tool 'academic_query' thành công:")
         print(f"   Phản hồi JSON-RPC: {json.dumps(test_result, ensure_ascii=False)}")
+
+    # Kiểm tra thử nghiệm công cụ xe điện VinFast
+    ev_test = server.call_tool("vehicle_status_query", {"license_plate": "30K-88888"})
+    print(f"✅ [VINFAST EV TOOL]: Test dispatch tool 'vehicle_status_query':")
+    print(f"   Phản hồi JSON-RPC: {json.dumps(ev_test, ensure_ascii=False)}")

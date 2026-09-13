@@ -1,0 +1,37 @@
+[
+  {
+    "id": "TC01",
+    "type": "direct_query",
+    "question": "Chào bạn, xe điện VinFast VF8 cần bảo dưỡng định kỳ sau mỗi bao nhiêu km và chính sách bảo hành pin ra sao?",
+    "expected_behavior": "Chatbot giải đáp trực tiếp từ kiến thức chung (mốc 12.000 km hoặc 1 năm, bảo hành pin 10 năm), không gọi bất kỳ Tool nào.",
+    "complexity": "Low"
+  },
+  {
+    "id": "TC02",
+    "type": "single_tool_query",
+    "question": "Hãy tra cứu tình trạng kỹ thuật và số km đã đi của xe VinFast biển số 30K-88888.",
+    "expected_behavior": "Agent nhận diện nhu cầu tra cứu xe, tự động kích hoạt Tool Call 'vehicle_status_query' với biển số 30K-88888.",
+    "complexity": "Medium"
+  },
+  {
+    "id": "TC03",
+    "type": "appointment_booking",
+    "question": "Đặt lịch bảo dưỡng định kỳ cho xe 30K-88888 vào lúc 08:30 ngày 18/09/2026 tại xưởng dịch vụ VinFast Smart City.",
+    "expected_behavior": "Agent tự động kích hoạt Tool Call 'book_service_appointment' với đúng thời gian, loại dịch vụ và xưởng dịch vụ.",
+    "complexity": "Medium"
+  },
+  {
+    "id": "TC04",
+    "type": "multi_step_reasoning",
+    "question": "Kiểm tra xem xe VinFast biển số 30K-88888 đã đến hạn bảo dưỡng chưa, nếu đến hạn rồi thì hãy đặt lịch bảo dưỡng mốc đó vào lúc 10:00 ngày 20/09/2026 tại xưởng dịch vụ quen thuộc của xe.",
+    "expected_behavior": "Agent thực hiện chuỗi suy luận ReAct: Tra cứu ODO và xưởng ruột của xe trước (Bước 1) -> Xác nhận xe đã quá 12.000 km và tiến hành đặt lịch tại xưởng VinFast Smart City (Bước 2).",
+    "complexity": "High"
+  },
+  {
+    "id": "TC05",
+    "type": "edge_case_handling",
+    "question": "Hãy tra cứu tình trạng bảo dưỡng của xe VinFast biển số 29A-99999.",
+    "expected_behavior": "Agent nhận kết quả NOT_FOUND từ Tool do biển số không tồn tại trong hệ thống VinFast và đưa ra phản hồi lịch sự, chính xác, không ảo giác.",
+    "complexity": "Medium"
+  }
+]

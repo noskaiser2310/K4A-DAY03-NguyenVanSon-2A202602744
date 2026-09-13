@@ -14,3 +14,10 @@ __pycache__/
 Thumbs.db
 .vscode/
 .idea/
+
+# Custom Demo & Presentation Tools (Excluded from assignment submission)
+demo.py
+docs/PRESENTATION.md
+.pytest_cache/
+*.log
+
